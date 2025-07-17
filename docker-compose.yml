@@ -24,5 +24,33 @@ services:
       - .:/app
     command: python3
 
+  loader:
+    build:
+      context: .
+    image: python:3.11-slim
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=5432
+      - PYTHONUNBUFFERED=1
+    command: bash -c "pip install -r requirements.txt && python scripts/load_raw_json_to_pg.py"
+
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-postgres:1.6.6
+    volumes:
+      - .:/usr/app
+    working_dir: /usr/app/my_project
+    depends_on:
+      - db
+    environment:
+      DBT_PROFILES_DIR: /usr/app/my_project
+
 volumes:
   pgdata: 
