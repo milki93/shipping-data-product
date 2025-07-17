@@ -2,3 +2,5 @@ python-dotenv
 telethon
 requests 
 dvc
+dbt-postgres
+psycopg2-binary

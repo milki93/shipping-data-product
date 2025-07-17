@@ -1,0 +1,12 @@
+my_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: db
+      user: postgres
+      password: supersecretpassword
+      port: 5432
+      dbname: shippingdb
+      schema: public
+      threads: 1
