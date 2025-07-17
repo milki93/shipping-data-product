@@ -1,0 +1,9 @@
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-postgres:1.10.4
+    volumes:
+      - ./:/usr/app
+    working_dir: /usr/app/my_project
+    depends_on:
+      - db
+    environment:
+      DBT_PROFILES_DIR: /usr/app/my_project
