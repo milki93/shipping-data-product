@@ -25,7 +25,8 @@ def create_table(cur):
     ''')
 
 def load_json_files(cur):
-    files = glob('data/raw/telegram_messages/*/*.json')
+    import glob
+    files = glob.glob('data/raw/telegram_messages/**/*.json', recursive=True)
     for file in files:
         with open(file, 'r', encoding='utf-8') as f:
             messages = json.load(f)

@@ -18,8 +18,7 @@ SESSION_NAME = os.getenv('TELEGRAM_SESSION', 'anon')
 CHANNELS = [
     'https://t.me/lobelia4cosmetics',
     'https://t.me/tikvahpharma',
-    'https://t.me/CheMed123',
-    
+    'https://t.me/CheMed123'
 ]
 
 # Data lake base directory
@@ -42,11 +41,13 @@ async def scrape_channel(client, channel_url):
         messages = []
         async for message in client.iter_messages(channel):
             msg_dict = message.to_dict()
-            messages.append(msg_dict)
-            # Download images if present
+            # Download images if present and record path
             if message.photo:
-                img_path = out_dir / f"{message.id}.jpg"
+                img_filename = f"{message.id}.jpg"
+                img_path = out_dir / img_filename
                 await client.download_media(message, file=img_path)
+                msg_dict["image_path"] = str(img_path.relative_to(DATA_LAKE_BASE))
+            messages.append(msg_dict)
         # Save messages as JSON
         out_file = out_dir / f"{channel_name}.json"
         with open(out_file, 'w', encoding='utf-8') as f:
