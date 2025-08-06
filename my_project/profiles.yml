@@ -3,7 +3,7 @@ my_project:
   outputs:
     dev:
       type: postgres
-      host: db
+      host: localhost
       user: postgres
       password: supersecretpassword
       port: 5432
