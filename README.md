@@ -14,6 +14,7 @@ Setup:
 3. Run the Telegram scraper script from the scripts/ directory.
 
 
+
 ## Task 3: Data Enrichment with Object Detection (YOLOv8)
 
 This task enriches Telegram message data with object detection results using a pre-trained YOLOv8 model. Detected objects in images are integrated into the analytics warehouse via dbt.
@@ -72,6 +73,63 @@ dbt run --select fct_image_detections
 
 ---
 
-For more details, see `scripts/yolo_image_detection.py` and the dbt model in `my_project/models/fct_image_detections.sql`.
+## Task 4: Analytical API with FastAPI
+
+This API exposes analytical endpoints over your dbt models using FastAPI.
+
+### API Structure
+
+- All FastAPI code is in the `api/` directory:
+    - `main.py` – FastAPI entrypoint
+    - `database.py` – Loads DB credentials from `.env` using python-dotenv and provides psycopg2 connection
+    - `schemas.py` – Pydantic response schemas
+    - `crud.py` – Query logic for endpoints (uses raw psycopg2 SQL)
+
+### How to Run
+
+1. Install dependencies:
+    ```sh
+    pip install -r requirements.txt
+    ```
+2. Ensure your `.env` file is in the project root, with correct PostgreSQL credentials:
+    ```env
+    POSTGRES_DB=shippingdb
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=supersecretpassword
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    ```
+3. Start the API from the project root so `.env` is loaded:
+    ```sh
+    uvicorn api.main:app --reload
+    ```
+
+### Endpoints
+
+- `GET /api/reports/top-products?limit=10` – Most frequently mentioned products
+- `GET /api/channels/{channel_name}/activity` – Posting activity for a channel
+- `GET /api/search/messages?query=paracetamol` – Search for messages by keyword
+
+### Example Usage
+
+```sh
+curl "http://localhost:8000/api/reports/top-products?limit=5"
+curl "http://localhost:8000/api/channels/CheMed123/activity"
+curl "http://localhost:8000/api/search/messages?query=paracetamol"
+```
+
+See `api/` for implementation details and extend as needed for your business questions.
+
+---
+
+## Troubleshooting
+
+### API returns 500 or "relation does not exist"
+- Confirm you ran `dbt seed` and `dbt run` for your models.
+- Make sure both dbt and FastAPI use the same `.env` and database credentials.
+- Use `psql` or DBeaver to check that views like `fct_image_detections` and `fct_messages` exist in the correct schema (usually `public`).
+- If models are missing, check your dbt `profiles.yml` and `.env` for mismatches.
+- Restart the API server after running dbt to refresh connections.
+- If using a virtual environment, ensure it is activated before running dbt or FastAPI.
 
 See scripts/telegram_scraper.py for the main data collection logic.
