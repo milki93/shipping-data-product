@@ -4,3 +4,4 @@ requests
 dvc
 dbt-postgres
 psycopg2-binary
+ultralytics
