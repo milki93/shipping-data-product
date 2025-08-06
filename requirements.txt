@@ -1,6 +1,6 @@
-python-dotenv 
+python-dotenv
 telethon
-requests 
+requests
 dvc
 dbt-postgres
 psycopg2-binary
@@ -9,3 +9,5 @@ fastapi
 uvicorn
 sqlalchemy
 pydantic
+dagster
+dagster-webserver

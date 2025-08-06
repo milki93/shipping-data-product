@@ -133,3 +133,66 @@ See `api/` for implementation details and extend as needed for your business que
 - If using a virtual environment, ensure it is activated before running dbt or FastAPI.
 
 See scripts/telegram_scraper.py for the main data collection logic.
+
+---
+
+## Task 5: Pipeline Orchestration with Dagster
+
+To make your workflow robust, observable, and schedulable, this project uses [Dagster](https://dagster.io/) for orchestration.
+
+### 1. Install Dagster
+
+Install the required packages:
+```sh
+pip install -r requirements.txt
+```
+
+### 2. Pipeline Structure
+- The Dagster pipeline is defined in `orchestration/pipeline.py`.
+- **Current workflow:**
+  - `scrape_telegram_data`: **Inactive by default** (data already present). To reactivate, uncomment the subprocess line in the op.
+  - `load_raw_to_postgres`: Loads all Telegram JSON files into Postgres using `scripts/load_raw_json_to_pg.py`.
+  - `run_dbt_transformations`: Runs `dbt seed` and `dbt run` to build analytics models in `my_project`.
+  - `run_yolo_enrichment`: Runs YOLOv8 image detection and prepares data for dbt.
+- These steps are combined into a single job: `shipping_data_pipeline`.
+- A daily schedule is provided (`shipping_data_schedule`).
+
+### 3. Launch the Dagster UI
+
+From the project root, activate your virtual environment and run:
+```sh
+source venv/bin/activate
+pip install -r requirements.txt  # ensure all dependencies
+
+dagster dev -f orchestration/pipeline.py
+```
+- The UI will be available at http://localhost:3000
+- You can run, monitor, and schedule your pipeline from the UI.
+
+**Troubleshooting:**
+- If the UI does not open, check for errors in the terminal and ensure all requirements are installed in your active virtual environment.
+
+### 4. Customizing Ops
+- Edit `orchestration/pipeline.py` to customize or expand pipeline steps as needed for your project.
+
+### 5. Scheduling
+- The pipeline is scheduled to run daily at midnight by default. You can activate or modify this schedule in the Dagster UI.
+
+### Example Directory Structure
+```
+shipping-data-product/
+├── orchestration/
+│   └── pipeline.py
+├── scripts/
+│   └── yolo_image_detection.py
+│   └── telegram_scraper.py
+│   └── load_raw_json_to_pg.py
+├── my_project/
+│   └── ...
+├── api/
+│   └── ...
+├── requirements.txt
+├── README.md
+```
+
+---
