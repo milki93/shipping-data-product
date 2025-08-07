@@ -1,21 +1,42 @@
-Shipping Data Product
+# 🚢 Shipping Data Product
 
-This project scrapes and collects data from public Telegram channels related to Ethiopian medical businesses. 
+This project scrapes and collects data from public Telegram channels related to Ethiopian medical businesses.  
 It uses Docker for containerization and PostgreSQL for data storage.
 
 Main features:
 - Telegram message and image scraping
 - Data lake organization by date and channel
-- Environment management with Docker and .env files
+- Environment management with Docker and `.env` files
 
-Setup:
-1. Add your Telegram and database credentials to a .env file.
-2. Build and run the project with Docker Compose.
-3. Run the Telegram scraper script from the scripts/ directory.
+---
+
+## Data Scraping and Collection (Extract & Load)
+
+This task collects raw message and image data from selected Ethiopian medical Telegram channels using the **Telethon** library.
+
+### 🔍 What it Does
+
+- Scrapes messages and associated images from public channels.
+- Organizes raw data into a data lake directory
 
 
+- Logs scraping status, success, and errors.
 
-## Task 3: Data Enrichment with Object Detection (YOLOv8)
+### How to Run
+
+```bash
+python scripts/telegram_scraper.py
+```
+
+### Features
+
+- Skips already scraped dates and channels using logs
+
+- Handles API rate limits and retries automatically
+
+- Stores image metadata for further analysis
+
+## Data Enrichment with Object Detection (YOLOv8)
 
 This task enriches Telegram message data with object detection results using a pre-trained YOLOv8 model. Detected objects in images are integrated into the analytics warehouse via dbt.
 
@@ -45,6 +66,21 @@ This will:
 - Save detection results to a CSV
 - Copy the CSV to `my_project/seeds/stg_image_detections.csv` for dbt integration
 
+--- 
+
+## Data Modeling and Transformation (Transform with dbt)
+
+This task uses **dbt (Data Build Tool)** to transform the raw Telegram data into clean, structured tables for analysis.
+
+### What it does:
+- Loads raw JSON data into PostgreSQL.
+- Transforms the data using dbt models into a **star schema** with:
+  - `dim_channels` (channel info)
+  - `dim_dates` (date info)
+  - `fct_messages` (core message data)
+- Ensures data quality with basic tests (e.g., `not_null`, `unique`).
+
+
 ### 3. Load Detection Results into the Data Warehouse (dbt)
 
 From the `my_project` directory:
@@ -73,7 +109,7 @@ dbt run --select fct_image_detections
 
 ---
 
-## Task 4: Analytical API with FastAPI
+## Analytical API with FastAPI
 
 This API exposes analytical endpoints over your dbt models using FastAPI.
 
@@ -91,14 +127,7 @@ This API exposes analytical endpoints over your dbt models using FastAPI.
     ```sh
     pip install -r requirements.txt
     ```
-2. Ensure your `.env` file is in the project root, with correct PostgreSQL credentials:
-    ```env
-    POSTGRES_DB=shippingdb
-    POSTGRES_USER=postgres
-    POSTGRES_PASSWORD=supersecretpassword
-    POSTGRES_HOST=localhost
-    POSTGRES_PORT=5432
-    ```
+2. Ensure your `.env` file is in the project root, with correct PostgreSQL credentials
 3. Start the API from the project root so `.env` is loaded:
     ```sh
     uvicorn api.main:app --reload
@@ -110,15 +139,6 @@ This API exposes analytical endpoints over your dbt models using FastAPI.
 - `GET /api/channels/{channel_name}/activity` – Posting activity for a channel
 - `GET /api/search/messages?query=paracetamol` – Search for messages by keyword
 
-### Example Usage
-
-```sh
-curl "http://localhost:8000/api/reports/top-products?limit=5"
-curl "http://localhost:8000/api/channels/CheMed123/activity"
-curl "http://localhost:8000/api/search/messages?query=paracetamol"
-```
-
-See `api/` for implementation details and extend as needed for your business questions.
 
 ---
 
@@ -136,7 +156,7 @@ See scripts/telegram_scraper.py for the main data collection logic.
 
 ---
 
-## Task 5: Pipeline Orchestration with Dagster
+## Pipeline Orchestration with Dagster
 
 To make your workflow robust, observable, and schedulable, this project uses [Dagster](https://dagster.io/) for orchestration.
 
